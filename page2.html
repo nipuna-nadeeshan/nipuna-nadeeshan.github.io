@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Document2</title>
 </head>
 <body>
 
   <!-- <h1>PDF Example</h1> -->
-  <!-- <p><a href="QS.pdf">e</a>.</p> -->
-  <p><a href="/page2.html">Optimize</a>.</p>
+  <!-- <p><a href="QS.pdf">e</a>.</p>
+  <p><a href="LABS.pdf">l</a>.</p> -->
   
-
+    <h2>Optimize Code</h2>
   <pre>
     from google.colab import drive
 import os
@@ -22,12 +22,12 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 drive.mount("/content/drive")
 
-%cd "/content/drive/MyDrive/Colab Notebooks/"
+%cd "/content/drive/MyDrive/Colab Notebooks/MLOM/Assignment01"
 
 cwd = os.getcwd()
 cwd
 
-dataset_path = f"{cwd}/chess_data"
+dataset_path = f"{cwd}/ChessDataset"
 
 datagen = ImageDataGenerator(rescale = 1./255, validation_split=0.2)
 
@@ -44,17 +44,27 @@ validation_generator = datagen.flow_from_directory(
     batch_size=32,
     class_mode='categorical',
     subset='validation') # set as validation data
-
 model = tf.keras.models.Sequential([
-    tf.keras.layers.Conv2D(filters=2, kernel_size=(3, 3), strides=1, activation="sigmoid", input_shape=(124, 124, 3)),
+    tf.keras.layers.Conv2D(filters=16, kernel_size=(3, 3), strides=1, activation="relu", input_shape=(124, 124, 3)),
     tf.keras.layers.MaxPool2D(2, 2),
 
-    tf.keras.layers.Conv2D(filters=2, kernel_size=(3, 3), strides=1, activation="relu"),
+    tf.keras.layers.Conv2D(filters=16, kernel_size=(3, 3), strides=1, activation="relu"),
+    tf.keras.layers.MaxPool2D(2, 2),
+
+    tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3), strides=1, activation="relu"),
+    tf.keras.layers.MaxPool2D(2, 2),
+
+    tf.keras.layers.Conv2D(filters=64, kernel_size=(3, 3), strides=1, activation="relu"),
+    tf.keras.layers.MaxPool2D(2, 2),
+
+    tf.keras.layers.Conv2D(filters=64, kernel_size=(3, 3), strides=1, activation="relu"),
     tf.keras.layers.MaxPool2D(2, 2),
 
     tf.keras.layers.Flatten(),
 
-    tf.keras.layers.Dense(50, activation="relu"),
+    tf.keras.layers.Dense(512, activation="relu"),
+
+    tf.keras.layers.Dropout(0.5),
 
     tf.keras.layers.Dense(5, activation="softmax"),
 ])
@@ -62,23 +72,42 @@ model = tf.keras.models.Sequential([
 optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
 model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=["accuracy"])
 
+early_stopping = tf.keras.callbacks.EarlyStopping(
+    monitor='val_loss',
+    patience=10,
+    restore_best_weights=True
+)
+
+model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
+    'best_model.h5',
+    save_best_only=True
+)
+
+reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
+    monitor='val_loss',
+    factor=0.1,
+    patience=5,
+    min_lr=1e-7
+)
+
 history = model.fit(
     train_generator,
     validation_data=validation_generator,
-    epochs=10
+    epochs=50,
+    callbacks=[early_stopping, model_checkpoint, reduce_lr]
 )
 
 plt.plot(history.history["loss"], label="train_loss")
 plt.plot(history.history["val_loss"], label="val loss")
 plt.legend()
 plt.show()
-plt.savefig("LossVal_loss")
+plt.savefig("LossVal_loss_Q2_2")
 
 plt.plot(history.history["accuracy"], label="train acc")
 plt.plot(history.history["val_accuracy"], label="vall acc")
 plt.legend()
 plt.show()
-plt.savefig("AccVal_acc")
+plt.savefig("AccVal_acc_Q2_2")
   </pre>
 </body>
 </html>
