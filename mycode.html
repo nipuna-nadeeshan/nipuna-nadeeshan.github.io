@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document3</title>
+</head>
+<body>
+  <h2>My Code</h2>
+  <pre>
+    import tensorflow as tf
+from google.colab import drive
+drive.mount("/content/drive")
+import os
+import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+from keras.src.layers.attention.multi_head_attention import activation
+from keras.src.layers.pooling.max_pooling2d import MaxPool2D
+%cd "/content/drive/MyDrive/Colab Notebooks/chess_data"
+
+cwd = os.getcwd()
+data_path = cwd
+
+datagen = ImageDataGenerator(rescale=1./255 , validation_split=0.2)
+
+training = datagen.flow_from_directory(
+    data_path,
+    target_size=(124,124),
+    batch_size=32,
+    class_mode = 'categorical',
+    subset="training"
+)
+testing = datagen.flow_from_directory(
+    data_path,
+    target_size=(124,124),
+    batch_size=32,
+    class_mode = 'categorical',
+    subset="validation"
+)
+
+training
+testing
+
+model = tf.keras.Sequential([
+    tf.keras.layers.Conv2D(filters=2, kernel_size=(3, 3), strides=1, activation="relu", input_shape=(124, 124, 3)),
+    tf.keras.layers.MaxPool2D(2, 2),
+    tf.keras.layers.Conv2D(filters=2, kernel_size= (3,3), activation="relu" , strides=1 ),
+    tf.keras.layers.MaxPool2D(2,2),
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(50, activation="relu"),
+    tf.keras.layers.Dense(5, activation="softmax")
+])
+optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+model.compile(optimizer=optimizer , loss='categorical_crossentropy' , metrics=["accuracy"])
+
+history = model.fit(
+    training,
+    validation_data=testing,
+    epochs=50
+)
+
+model.summary()
+  </pre>
+</body>
+</html>
