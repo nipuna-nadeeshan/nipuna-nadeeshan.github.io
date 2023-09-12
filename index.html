@@ -14,72 +14,7 @@
   
 
   <pre>
-    from google.colab import drive
-import os
-import tensorflow as tf
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
-drive.mount("/content/drive")
-
-%cd "/content/drive/MyDrive/Colab Notebooks/"
-
-cwd = os.getcwd()
-cwd
-
-dataset_path = f"{cwd}/chess_data"
-
-datagen = ImageDataGenerator(rescale = 1./255, validation_split=0.2)
-
-train_generator = datagen.flow_from_directory(
-    dataset_path,
-    target_size=(124, 124),
-    batch_size=32,
-    class_mode='categorical',
-    subset='training') # set as training data
-
-validation_generator = datagen.flow_from_directory(
-    dataset_path, # same directory as training data
-    target_size=(124, 124),
-    batch_size=32,
-    class_mode='categorical',
-    subset='validation') # set as validation data
-
-model = tf.keras.models.Sequential([
-    tf.keras.layers.Conv2D(filters=2, kernel_size=(3, 3), strides=1, activation="sigmoid", input_shape=(124, 124, 3)),
-    tf.keras.layers.MaxPool2D(2, 2),
-
-    tf.keras.layers.Conv2D(filters=2, kernel_size=(3, 3), strides=1, activation="relu"),
-    tf.keras.layers.MaxPool2D(2, 2),
-
-    tf.keras.layers.Flatten(),
-
-    tf.keras.layers.Dense(50, activation="relu"),
-
-    tf.keras.layers.Dense(5, activation="softmax"),
-])
-
-optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
-model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=["accuracy"])
-
-history = model.fit(
-    train_generator,
-    validation_data=validation_generator,
-    epochs=10
-)
-
-plt.plot(history.history["loss"], label="train_loss")
-plt.plot(history.history["val_loss"], label="val loss")
-plt.legend()
-plt.show()
-plt.savefig("LossVal_loss")
-
-plt.plot(history.history["accuracy"], label="train acc")
-plt.plot(history.history["val_accuracy"], label="vall acc")
-plt.legend()
-plt.show()
-plt.savefig("AccVal_acc")
+    
   </pre>
 </body>
 </html>
