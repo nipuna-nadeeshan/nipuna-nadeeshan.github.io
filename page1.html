@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  
+  <pre>
+    import numpy as np
+X = np.reshape(dataX,(n_patterns,seq_length,1))
+X = X/float(n_vocab)
+print(X)
+
+import tensorflow as tf
+from tensorflow import keras
+from keras.utils import to_categorical
+
+y = to_categorical(dataY)
+
+from keras.api._v2.keras import Sequential
+from keras.layers import LSTM, Dense, Dropout
+from keras.callbacks import ModelCheckpoint
+
+model = Sequential()
+model.add(LSTM(256,input_shape=[X.shape[1],X.shape[2]]))
+model.add(Dropout(0.2))
+model.add(Dense(y.shape[1],activation="softmax"))
+model.compile(loss="categorical_crossentropy" , optimizer="adam")
+filepath = "weights-improvement-{epoch:02d}-{loss:.4f}.hdf5"
+checkpoint = ModelCheckpoint(filepath,monitor="loss",verbose=1,save_best_only=True,mode='min')
+callback_list = checkpoint
+
+epochs = 10
+batch_size = 128
+
+model.fit(X,y,epochs=epochs,batch_size=batch_size,callbacks=callback_list)
+
+int_to_char = dict((i,c) for i,c in enumerate(chars))
+
+filename = "weights-improvement-10-2.4165.hdf5"
+model.load_weights(filename)
+
+model.compile(loss = "categorical_crossentropy" , optimizer='adam')
+
+print (len(dataX))
+start = np.random.randint(0,len(dataX)-1)
+print(start)
+pattern = dataX[start]
+print("seed: ")
+print("\"",''.join([int_to_char[value]for value in pattern]),"\"")
+
+length = 100
+final = []
+for i in range(length):
+  x = np.reshape(pattern,(1,len(pattern),1))
+  x = x/float(n_vocab)
+
+  prediction = model.predict(x,verbose = 0)
+  index = np.argmax(prediction)
+
+  result = int_to_char[index]
+  final.append(result)
+  pattern.append(index)
+  pattern = pattern[1:(len(pattern))]
+print(final)
+  </pre>
+</body>
+</html>
