@@ -8,131 +8,139 @@
 <body>
   
   <pre>
-    Projects Database Schema:
-
-    CREATE TYPE Empl_typ AS OBJECT(
-     empNo INT,
-     empName VARCHAR2(50),
-     salary FLOAT,
-     designation VARCHAR2(50)
-    );
-    
-    CREATE OR REPLACE TYPE Member_typ AS OBJECT(
-     team_member REF Empl_typ
-    );
-    
-    CREATE TYPE Member_nt AS TABLE OF Member_typ;
-    
-    CREATE TYPE Project_typ AS OBJECT(
-     projNo INT,
-     pname VARCHAR2(50),
-     members Member_nt,
-     mgr REF Empl_typ,
-     MEMBER FUNCTION Budget RETURN FLOAT
-    );
-    
-    CREATE TABLE Employees OF Empl_typ(PRIMARY KEY(empNo));
-    CREATE TABLE Projects OF Project_typ(PRIMARY KEY (projNo), mgr REFERENCES Employees)
-    NESTED TABLE members STORE AS member_tab;
-    
-    INSERT INTO Employees VALUES (1, 'Sarath', 10000.0, 'Technician');
-    INSERT INTO Employees VALUES (2, 'Sampath', 12000.0, 'Sales Officer');
-    INSERT INTO Employees VALUES (3, 'Viraj', 18000.0, 'Software Developer');
-    INSERT INTO Employees VALUES (4, 'Tusith', 22000.0, 'Director');
-    INSERT INTO Employees VALUES (5, 'Nimali', 15000.0, 'Technician');
-    INSERT INTO Projects VALUES (10, 'Cabling Project',
-     member_nt(
-       Member_typ((select ref(e) from Employees e where e.empNo=1)),
-       Member_typ((select ref(e) from Employees e where e.empNo=5))
-     ), null);
-    
-    INSERT INTO Projects VALUES (12, 'Data Warehousing Proj',
-     member_nt(
-       Member_typ((select ref(e) from Employees e where e.empNo=2)),
-       Member_typ((select ref(e) from Employees e where e.empNo=3)),
-       Member_typ((select ref(e) from Employees e where e.empNo=4))
-     ),
-     (select ref(e) from Employees e where e.empNo=2)
-    );
-    
-    
-    Question 1:
-    Print the project number, project name, and project manager's salary in descending order of salary values.
-    
-    Question 2:
-    Write a member method (called Budget) that finds and returns the total salary of all members in the project.
-    
-    Question 3:
-    Use the method created above to find the project with the least budget greater than 20000. Print the projNo.
-    
-    
-                            =======================
-                            Bank Database Schema:
-                            =======================
-                            
-                            
-    
-    create type account_type_typ as object (
-     code char(4),
-     name varchar2(50),
-     interest float,
-     min_bal float
-    );
-    
-    create type account_typ as object (
-     account_no char(10),
-     account_ty ref account_type_typ,
-     balance float
-    );
-    
-    create type account_tlb as table of account_typ;
-    
-    create table account_types of account_type_typ (code primary key);
-    
-    create type customer_typ as object (
-     id char(10),
-     name varchar2(50),
-     accounts account_tlb
-    );
-    
-    create table customers of customer_typ(id primary key)
-     nested table accounts store as ntlb_accounts;
-    
-    insert into account_types values ('SAVS', 'General Savings', 5.24, 100.0);
-    insert into account_types values ('CHEQ', 'General Checking', 0.0, 0);
-    insert into account_types values ('HAPS', 'Hapan Savings', 6.26, 20000.0);
-    
-    insert into customers values (
-     '781250401V',
-     'Sampath Weerasinghe',
-     account_tlb(
-      account_typ('1122300004',
-                (select ref(s) from account_types s where s.code = 'SAVS'), 5700.00),
-      account_typ('2334453124',
-                (select ref(s) from account_types s where s.code = 'CHEQ'), 2300.00)
-     )
-    );
-    
-    insert into customers values ( 
-     customer_typ (
-      '99334453V', 'Dulani Pieris',
-      account_tlb(
-       account_typ('3445663321',
-                (select ref(s) from account_types s where s.code = 'HAPS'), 19045.06),
-       account_typ('5000022123',
-                (select ref(s) from account_types s where s.code = 'SAVS'), 55235.00)
-      )
-     )
-    );
-    
-    Question 1:
-    Deposit Rs. 1200/- to the account (Acc # 1122300004) of Mr. Sampath Weerasinghe (ID # 781250401V).
-    
-    Question 2:
-    Write a member function (called TotBal) that returns the total balance of a customer's accounts.
-    
-    Question 3:
-    Write a query to print the names of customers and their total balances (using the function created in question 2).
+    MAD code snippets  - By Falcon 
+Note – Codes are highlighted in this color 
+Disclaimer: This document provides code snippets for reference purposes only. Please exercise caution and use 
+them at your own risk, as they may contain potential errors. 
+1. Get user inputs (Consider getting a Float value from the user): -  
+var num1: Float? = findViewById<EditText>(R.id.edtNumber1).text.toString().toFloat() 
+2. Bind Buttons to values: -  
+val btnAdd: Button = findViewById(R.id.btnAdd) 
+3. Using explicit Intents: -  
+a. Declaration: -  
+val addScheduleIntent = Intent(this, AddScheduleActivity::class.java) 
+b. Usage (Starting another activity from “this” activity): - 
+startActivity(addScheduleIntent) 
+c. Passing data to the new activity using Intents (via extras): - 
+addScheduleIntent.putExtra(“Key”, Value)  
+// Note that “key” is the index or reference name of the data that we are passing.  
+//Value is the actual data value. So, we can access the value by calling it’s “Key”. 
+d. Retrieving above value in another activity: -  
+val receivedText = intent.getStringExtra("key") 
+4. Using Toast msgs: -  
+Toast.makeText(this,”Your toast msg here”, Toast.LENGTH_SHORT).show() 
+//In here “.show()” is used to display the Toast. You can assign the Toast to a “Val” and 
+then later use “.show()” to show the Toast msg as well 
+5. Using RecyclerView : -  
+Ref - Create dynamic lists with RecyclerView  |  Android Developers 
+a. First you need to have a layout for the items (item rows) (In here “rowTextView” is 
+included in that layout) 
+b. Adapter class implementation: - 
+class MyAdapter(private val dataList: List<String>) : RecyclerView.Adapter<MyViewHolder>() { 
+class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) { 
+// Define references to the views in the item layout 
+val textView: TextView = itemView.findViewById(R.id.rowTextView) 
+} 
+override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder { 
+// Inflate the item layout and create a ViewHolder 
+val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_layout, parent, false) 
+return MyViewHolder(itemView) 
+} 
+override fun onBindViewHolder(holder: MyViewHolder, position: Int) { 
+// Bind data to the views in each item 
+val data = dataList[position] 
+holder.textView.text = data 
+} 
+override fun getItemCount(): Int { 
+// Return the number of items in the data list 
+return dataList.size 
+} 
+} 
+c. Usage (in the activity where you are going to use the recyclerView) 
+val recyclerView: RecyclerView = findViewById(R.id.recyclerView) 
+val data: List<String> = getData() // Replace with your data source 
+val adapter = MyAdapter(data) 
+recyclerView.adapter = adapter 
+recyclerView.layoutManager = LinearLayoutManager(this) 
+6. Using the SQLite database using Rooms: - 
+Ref - Save data in a local database using Room  |  Android Developers 
+a. First you need to add dependencies to the Gradle build file(Module:app) 
+(I don’t think they will ask this (dependency adding) but wouldn’t risk it either. This part tends 
+to be faulty. So, proceed with caution) 
+implementation("androidx.room:room-runtime: 2.5.1") 
+annotationProcessor("androidx.room:room-compiler: 2.5.1") 
+// To use Kotlin annotation processing tool (kapt) 
+kapt("androidx.room:room-compiler: 2.5.1") 
+// To use Kotlin Symbol Processing (KSP) 
+ksp("androidx.room:room-compiler: 2.5.1 ") 
+b. To use Rooms, you need to have at least 2 classes and 1 interface (Entity class, Database 
+class, & DAO interface). Note that annotations are a must. Do not neglect the annotations. 
+i. 
+Entity class: - This class act as the table schema for the database 
+@Entity 
+data class User( 
+@PrimaryKey val uid: Int, 
+@ColumnInfo(name = "first_name") val firstName: String?, 
+@ColumnInfo(name = "last_name") val lastName: String? 
+) 
+ii. 
+iii. 
+iv. 
+DAO Interface: - This interface provides methods to perform CRUD operations. 
+@Dao 
+interface UserDao { 
+@Query("SELECT * FROM user") 
+fun getAll(): List<User> 
+@Query("SELECT * FROM user WHERE uid IN (:userIds)") 
+fun loadAllByIds(userIds: IntArray): List<User> 
+@Query("SELECT * FROM user WHERE first_name LIKE :first AND " + 
+"last_name LIKE :last LIMIT 1") 
+fun findByName(first: String, last: String): User 
+} 
+Database class: -  
+This class defines the database configuration and act as the main access point to 
+the stored data. DAO interface is implemented by this class. (Use singleton design 
+pattern to ensure only one instance of this class is created per process.) 
+@Database(entities = [User::class], version = 1) 
+abstract class AppDatabase : RoomDatabase() { 
+abstract fun userDao(): UserDao 
+} 
+Usage: - (To use the Rooms, first you need to build the database. Then you can 
+access the DAO interface methods through an object of Database class and 
+perform Database operations) 
+1. Building the database: - 
+val db = Room.databaseBuilder( applicationContext,AppDatabase::class.java, "database-name").build() 
+2. Accessing DAO interface methods through Database object: 
+val userDao = db.userDao() 
+val users: List<User> = userDao.getAll()  
+//Please refer to the DAO interface to see the “getAll()” function 
+7. Fragments usage: - (refer Lab 5) 
+(Imagine you have created a fragment called 'userFragment.' To initiate that fragment with a button (or any element) 
+click, you need to add the following code inside the setOnClickListener of that element.) 
+Like this: - 
+val btnUser:Button = findViewById(R.id.imgUser) 
+btnUser.setOnClickListener() { 
+supportFragmentManager.beginTransaction().apply { 
+replace(R.id.fragmentContainerView, UserFragment()) 
+commit() 
+} 
+} 
+8. Coroutines usage: - (refer tutorial 5) 
+CoroutineScope(Dispatchers.Main).launch{ 
+//Whatever you want to run in a coroutine can be invoke or implement within this 
+} 
+Note: -  
+i. 
+ii. 
+Use coroutines to perform database CRUD operations. 
+Dispatchers: - 
+1. Dispatchers.Default: Use this for CPU intensive tasks (Such as complex calculations 
+or media processing) 
+2. Dispatchers.IO: Use this for IO-bound tasks, such as reading/ writing files. 
+3. Dispatchers.Main:  Use this for UI-related tasks, such as updating the value of UI 
+elements. 
+4. Dispatchers.Unconfined: Use this when there’s no specific task (or when you have 
+no idea which dispatcher is the most suitable one) 
   </pre>
 </body>
 </html>
